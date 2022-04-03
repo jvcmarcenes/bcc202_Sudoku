@@ -211,6 +211,7 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 	for (int j = 0; j < qtd_conf_reg; j++) (*conflitos)[i++] = conflitos_reg[j];
 }
 
+// remove conflitos duplicados do vetor de conflitos
 void remove_duplicados(Conflito **conflitos, int *qtd_conflitos) {
 	Conflito *conf = malloc(*qtd_conflitos * sizeof(Conflito));
 	int i = 0;
