@@ -1,4 +1,3 @@
-
 #include<stdio.h>
 #include<stdlib.h>
 #include "sudoku.h"
@@ -13,7 +12,7 @@ struct celula {
 
 // Imprime uma celula no terminal, no formato (linha, coluna)
 void print_celula(Celula *c) {
-	printf("(%d, %d)", c->lin + 1, c->col + 1);
+	printf("(%d,%d)", c->lin + 1, c->col + 1);
 }
 
 void print_celulas(Celula *c, int qtd) {
@@ -40,7 +39,7 @@ void print_conflito(Conflito *c) {
 	switch (c->tipo) {
 		case 0: printf("Linha "); break;
 		case 1: printf("Coluna "); break;
-		case 2: printf("Região "); break;
+		case 2: printf("Regiao "); break;
 	}
 	printf("%d:  ", c->n + 1);
 	print_celula(&c->c1);
@@ -49,6 +48,7 @@ void print_conflito(Conflito *c) {
 }
 
 void print_conflitos(Conflito *c, int qtd) {
+    printf("Alguma coisa deu errado... Invalidos:\n");
 	for (int i = 0; i < qtd; i++) {
 		print_conflito(c + i);
 		printf("\n");
@@ -232,6 +232,16 @@ void remove_duplicados(Conflito **conflitos, int *qtd_conflitos) {
 	*qtd_conflitos = i;
 }
 
+//Função para o qsort
+int cmpfunc(const void *a, const void *b) {
+    if (((Conflito*)a)->tipo == ((Conflito*)b)->tipo) {
+        return ((Conflito*)a)->n - ((Conflito*)b)->n;
+    }
+    else {
+        return ((Conflito*)a)->tipo - ((Conflito*)b)->tipo;
+    }
+}
+
 // Encontra todos os conflitos no tabuleiro
 void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	Conflito *conf[9][9];
@@ -265,4 +275,6 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	}
 
 	remove_duplicados(conflitos, qtd_conflitos);
+
+    qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), cmpfunc);
 }
