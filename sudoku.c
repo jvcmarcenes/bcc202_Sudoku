@@ -1,8 +1,7 @@
+
 #include<stdio.h>
 #include<stdlib.h>
 #include "sudoku.h"
-
-#define DEBUG printf("DEBUG\n")
 
 // Struct para definir uma posição no tabuleiro
 struct celula {
@@ -47,9 +46,10 @@ void print_conflito(Conflito *c) {
 	print_celula(&c->c2);
 }
 
-void print_conflitos(Conflito *c, int qtd) {
-	if(qtd)
-    	printf("Alguma coisa deu errado...  Invalidos:\n");
+void mostra_conflitos(Conflito *c, int qtd) {
+	if (qtd == 0) return;
+
+	printf("Alguma coisa deu errado...  Invalidos:\n");
 	for (int i = 0; i < qtd; i++) {
 		print_conflito(c + i);
 		printf("\n");
@@ -60,6 +60,13 @@ int conflito_igual(Conflito *c1, Conflito *c2) {
 	return c1->tipo == c2->tipo && c1->n == c2->n && (
 		(celula_igual(&c1->c1, &c2->c1) && celula_igual(&c1->c2, &c2->c2)) ||
 		(celula_igual(&c1->c1, &c2->c2) && celula_igual(&c1->c2, &c2->c1)));
+}
+
+// função de comparação entre dois conflitos, usada no qsort
+int conflito_comp(const void *a, const void *b) {
+	Conflito *c1 = (Conflito *)a;
+	Conflito *c2 = (Conflito *)b;
+	return c1->tipo == c2->tipo ? c1->n - c2->n : c1->tipo - c2->tipo;
 }
 
 // Struct para definir um tabuleiro de sudoku
@@ -98,10 +105,10 @@ int ler_sudoku(Sudoku *sudoku, char *arq_nome) {
 	return 0;
 }
 
-// Encontra todas as celulas vazias do tabuleiro e retorna um vetor com a posição delas
+// Encontra todas as celulas vazias do tabuleiro e as retorna por referencia pelo vetor "vazias"
 // o vetor é alocado dentro da função, e portanto deve ser desalocado por quem chamou a função
 // "qtd_vazias" é uma referencia a um int usado para denominar o tamanho do vetor
-Celula* celulas_vazias(Sudoku *sudoku, int *qtd_vazias) {
+void celulas_vazias(Sudoku *sudoku, Celula **vazias, int *qtd_vazias) {
 	// primeiro contamos quantas celulas vazias existem no tabuleiro, para saber qual tamanho alocar para o vetor de celulas
 	*qtd_vazias = 0;
 	for (int lin = 0; lin < 9; lin++) {
@@ -110,23 +117,20 @@ Celula* celulas_vazias(Sudoku *sudoku, int *qtd_vazias) {
 		}
 	}
 
-	Celula* vazias = malloc(*qtd_vazias * sizeof(Celula));
+	*vazias = malloc(*qtd_vazias * sizeof(Celula));
 
 	// populamos o vetor com as celulas vazias
 	int i = 0;
 	for (int lin = 0; lin < 9; lin++) {
 		for (int col = 0; col < 9; col++) {
 			if (sudoku->tabuleiro[col][lin] == 0) {
-				vazias[i] = (Celula){col, lin};
-				i++;
+				(*vazias)[i++] = (Celula){ col, lin };
 			}
 		}
 	}
-
-	return vazias;
 }
 
-// Encontra todos os conflitos em uma linha com uma celula
+// encontra todos os conflitos em uma linha com uma celula
 void conflitos_linha(Sudoku *sudoku, int lin, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
 	*qtd_conflitos = 0;
 	for (int col = 0; col < 9; col++) {
@@ -145,7 +149,7 @@ void conflitos_linha(Sudoku *sudoku, int lin, Celula *c, Conflito **conflitos, i
 	}
 }
 
-// Encontra todos os conflitos em uma coluna com uma celula
+// encontra todos os conflitos em uma coluna com uma celula
 void conflitos_coluna(Sudoku *sudoku, int col, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
 	*qtd_conflitos = 0;
 	for (int lin = 0; lin < 9; lin++) {
@@ -164,10 +168,8 @@ void conflitos_coluna(Sudoku *sudoku, int col, Celula *c, Conflito **conflitos, 
 	}
 }
 
-// Encontra todos os conflitos em uma região com uma celula
-void conflitos_regiao(Sudoku *sudoku, int reg, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
-	const int lin_c = (reg / 3) * 3; // linha inicial da região
-	const int col_c = (reg % 3) * 3; // coluna inicial da região
+// encontra todos os conflitos em uma região com uma celula
+void conflitos_regiao(Sudoku *sudoku, int lin_c, int col_c, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
 
 	*qtd_conflitos = 0;
 	for (int lin = lin_c; lin < lin_c + 3; lin++) {
@@ -184,13 +186,13 @@ void conflitos_regiao(Sudoku *sudoku, int reg, Celula *c, Conflito **conflitos, 
 		for (int col = col_c; col < col_c + 3; col++) {
 			if (lin == c->lin && col == c->col) continue;
 			if (sudoku->tabuleiro[col][lin] == sudoku->tabuleiro[c->col][c->lin]) {
-				(*conflitos)[i++] = (Conflito) { 2, reg, *c, (Celula) { col, lin } };
+				(*conflitos)[i++] = (Conflito) { 2, lin_c / 3 * 3 + col_c / 3, *c, (Celula) { col, lin } };
 			}
 		}
 	}
 }
 
-// Encontra todos os conflitos com uma celula
+// encontra todos os conflitos com uma celula
 void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
 	Conflito *conflitos_lin;
 	int qtd_conf_lin;
@@ -202,7 +204,7 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 
 	Conflito *conflitos_reg;
 	int qtd_conf_reg;
-	conflitos_regiao(sudoku, (c->lin / 3) * 3 + (c->col / 3), c, &conflitos_reg, &qtd_conf_reg);
+	conflitos_regiao(sudoku, c->lin / 3 * 3, c->col / 3 * 3, c, &conflitos_reg, &qtd_conf_reg);
 
 	(*qtd_conflitos) = qtd_conf_lin + qtd_conf_col + qtd_conf_reg;
 
@@ -235,17 +237,7 @@ void remove_duplicados(Conflito **conflitos, int *qtd_conflitos) {
 	*qtd_conflitos = i;
 }
 
-//Função para o qsort
-int cmpfunc(const void *a, const void *b) {
-    if (((Conflito*)a)->tipo == ((Conflito*)b)->tipo) {
-        return ((Conflito*)a)->n - ((Conflito*)b)->n;
-    }
-    else {
-        return ((Conflito*)a)->tipo - ((Conflito*)b)->tipo;
-    }
-}
-
-// Encontra todos os conflitos no tabuleiro
+// encontra todos os conflitos no tabuleiro
 void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	Conflito *conf[9][9];
 	int qtd_conf[9][9];
@@ -279,52 +271,42 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 
 	remove_duplicados(conflitos, qtd_conflitos);
 
-    qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), cmpfunc);
+	qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), conflito_comp);
 }
 
-//Define as sugestões para as celulas vazias
-void print_vazia(Celula c, Sudoku *sudoku){
-	int ver = 0; //Define se o numero é valido ou não
-	int init_col = 0, init_lin = 0, lim_col = 0, lim_lin = 0;
+// encontra os possiveis valores para uma celula
+void mostra_sugestao_celula(Celula *c, Sudoku *sudoku) {
+	const int lin_c = c->lin / 3;
+	const int col_c = c->col / 3;
 
-	//Define os quadrantes
-	if(c.col < 3)  lim_col = 2;
-	else if(c.col < 6) init_col = 3, lim_col = 5;
-	else init_col = 6, lim_col = 8;
+	for (int i = 1; i <= 9; i++) {
+		int ver = 0;
 
-	if(c.lin < 3)  lim_lin = 2;
-	else if(c.lin < 6) init_lin = 3, lim_lin = 5;
-	else init_lin = 6, lim_lin = 8;
+		// verifica a linha
+		for (int j = 0; j < 9; j++)
+			if (sudoku->tabuleiro[j][c->lin] == i) { ver = 1; break; } // se já houver aquele valor na linha
 
-	for(int i = 1; i <= 9; i++){
+		// verifica a coluna
+		for (int j = 0; (j < 9) && !ver; j++)
+			if (sudoku->tabuleiro[c->col][j] == i) { ver = 1; break; } // se já houver aquele valor na coluna
 
-		//Verifica a linha
-		for(int j = 0; j < 9; j++)
-			if(sudoku->tabuleiro[j][c.lin] == i){ver = 1; break;} //Se já houver aquele valor na linha
+		// verifica o quadrante
+		for (int j = col_c; (j < col_c + 3) && !ver; j++)
+			for (int k = lin_c; k < lin_c + 3; k++)
+				if (sudoku->tabuleiro[j][k] == i) { ver = 1; break; } // se já houver aquele valor no quadrante
 
-		//Verifica a coluna
-		for(int j = 0; (j < 9) && !(ver); j++)
-			if(sudoku->tabuleiro[c.col][j] == i){ver = 1; break;} //Se já houver aquele valor na coluna
-
-		//Verifica o quadrante
-		for(int j = init_col; (j <= lim_col) && !(ver); j++){
-			for(int k = init_lin; k <= lim_lin; k++)
-				if(sudoku->tabuleiro[j][k] == i){ver = 1; break;} //Se já houver aquele valor no quadrante
-		}
-		
-		if(!(ver)){printf("%d ", i);} //Verifica se a sugestões é valida e a imprime
-		ver = 0;
+		if (!ver) printf("%d ", i); // verifica se a sugestões é valida e a imprime
 	}
 }
 
-//Imprima as sugestões para as celulas vazias no terminal
-void print_vazias(Celula *c, int qtd, Sudoku *sudoku){
-	if(qtd)
-		printf("Voce esta no caminho certo.  Sugestoes:\n");
-	
-	for(int i = 0; i < qtd; i++){
+// imprime as sugestões para as celulas vazias
+void mostra_sugestoes(Celula *c, int qtd, Sudoku *sudoku) {
+	if (!qtd) return;
+
+	printf("Voce esta no caminho certo. Sugestoes:\n");
+	for (int i = 0; i < qtd; i++) {
 		printf("(%d,%d):  ", c[i].lin + 1, c[i].col + 1);
-		print_vazia(c[i],sudoku); //Imprime as sugestões para a celula vazia
+		mostra_sugestao_celula(c + i, sudoku); // imprime as sugestões para a celula vazia
 		printf("\n");
 	}
 }

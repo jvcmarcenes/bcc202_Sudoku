@@ -1,3 +1,4 @@
+
 #ifndef SUDOKU
 #define SUDOKU
 
@@ -9,7 +10,7 @@ void print_celulas(Celula *c, int qtd);
 typedef struct conflito Conflito;
 
 void print_conflito(Conflito *c);
-void print_conflitos(Conflito *c, int qtd);
+void mostra_conflitos(Conflito *c, int qtd);
 
 typedef struct sudoku Sudoku;
 
@@ -19,12 +20,10 @@ void free_sudoku();
 
 int ler_sudoku(Sudoku *sudoku, char *arq);
 
-Celula* celulas_vazias(Sudoku *sudoku, int *qtd_vazias);
+void celulas_vazias(Sudoku *sudoku, Celula **vazias, int *qtd_vazias);
 
 void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos);
 
-void print_vazia(Celula c, Sudoku *sudoku);
-
-void print_vazias(Celula *c, int qtd, Sudoku *sudoku);
+void mostra_sugestoes(Celula *c, int qtd, Sudoku *sudoku);
 
 #endif
