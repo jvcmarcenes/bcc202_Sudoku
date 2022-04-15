@@ -306,12 +306,13 @@ void print_vazia(Celula c, Sudoku *sudoku){
 		for(int j = 0; (j < 9) && !(ver); j++)
 			if(sudoku->tabuleiro[c.col][j] == i){ver = 1; break;} //Se já houver aquele valor na coluna
 
+		//Verifica o quadrante
 		for(int j = init_col; (j <= lim_col) && !(ver); j++){
 			for(int k = init_lin; k <= lim_lin; k++)
 				if(sudoku->tabuleiro[j][k] == i){ver = 1; break;} //Se já houver aquele valor no quadrante
 		}
 		
-		if(!(ver)){printf("%d ", i);} //Imprime a sujestão
+		if(!(ver)){printf("%d ", i);} //Verifica se a sugestões é valida e a imprime
 		ver = 0;
 	}
 }
@@ -323,7 +324,7 @@ void print_vazias(Celula *c, int qtd, Sudoku *sudoku){
 	
 	for(int i = 0; i < qtd; i++){
 		printf("(%d,%d):  ", c[i].lin + 1, c[i].col + 1);
-		print_vazia(c[i],sudoku);
+		print_vazia(c[i],sudoku); //Imprime as sugestões para a celula vazia
 		printf("\n");
 	}
 }
