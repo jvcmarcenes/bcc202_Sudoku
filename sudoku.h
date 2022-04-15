@@ -19,8 +19,12 @@ void free_sudoku();
 
 int ler_sudoku(Sudoku *sudoku, char *arq);
 
-void celulas_vazias(Sudoku *sudoku, Celula **vazias, int *qtd_vazias);
+Celula* celulas_vazias(Sudoku *sudoku, int *qtd_vazias);
 
 void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos);
+
+void print_vazia(Celula c, Sudoku *sudoku);
+
+void print_vazias(Celula *c, int qtd, Sudoku *sudoku);
 
 #endif

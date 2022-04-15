@@ -7,11 +7,12 @@
 1 + alocar tabuleiro - J
 2 - encontrar celulas vazias - J
 3 - encontrar celulas invalidas - J
-4 - se tiver celulas invalidas, imprimir celulas invalidas - A
+4 - se tiver celulas invalidas, imprimir celulas invalidas - A 
 5 - se não tiver celulas vazias, imprimir que o jogo esta completo - P
 6 - senao, encontrar possiveis valores pras celulas vazias - P
-
 */
+
+
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -25,19 +26,25 @@ int main(int argc, char *argv[]) {
 	res = ler_sudoku(sudoku, argv[1]);
 
 	if (res == 1) {
-		printf("Falha ao tentar ler arquivo %s", argv[1]);
+		printf("Falha ao tentar ler arquivo %s\n", argv[1]);
 		return 0;
 	}
-
-	Celula *vazias;
-	int qtd_vazias;
-	celulas_vazias(sudoku, &vazias, &qtd_vazias);
 
 	Conflito *conf;
 	int qtd_conflitos;
 	conflitos(sudoku, &conf, &qtd_conflitos);
 
 	print_conflitos(conf, qtd_conflitos);
+
+	Celula *vazias;
+	int qtd_vazias;
+	vazias = celulas_vazias(sudoku, &qtd_vazias);
+
+	print_vazias(vazias, qtd_vazias, sudoku);
+
+	//Se o jogo já estiver completo e sem conflitos
+	if(!(qtd_conflitos || qtd_vazias))
+		printf("Jogo completo.  Voce ganhou!\n");
 
 	free(vazias);
 	free(conf);
