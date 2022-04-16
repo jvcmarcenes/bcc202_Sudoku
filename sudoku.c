@@ -276,8 +276,8 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 
 // encontra os possiveis valores para uma celula
 void mostra_sugestao_celula(Celula *c, Sudoku *sudoku) {
-	const int lin_c = c->lin / 3;
-	const int col_c = c->col / 3;
+	const int lin_c = c->lin / 3 * 3;
+	const int col_c = c->col / 3 * 3;
 
 	for (int i = 1; i <= 9; i++) {
 		int ver = 0;
