@@ -211,6 +211,10 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 	for (int j = 0; j < qtd_conf_lin; j++) (*conflitos)[i++] = conflitos_lin[j];
 	for (int j = 0; j < qtd_conf_col; j++) (*conflitos)[i++] = conflitos_col[j];
 	for (int j = 0; j < qtd_conf_reg; j++) (*conflitos)[i++] = conflitos_reg[j];
+
+	free(conflitos_lin);
+	free(conflitos_col);
+	free(conflitos_reg);
 }
 
 // remove conflitos duplicados do vetor de conflitos
@@ -229,7 +233,7 @@ void remove_duplicados(Conflito **conflitos, int *qtd_conflitos) {
 		if (!repetido) conf[i++] = (*conflitos)[j];
 	}
 
-	*conflitos = realloc(*conflitos, i * sizeof(Conflito));
+	free(*conflitos);
 	*conflitos = conf;
 	*qtd_conflitos = i;
 }
@@ -269,6 +273,14 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	remove_duplicados(conflitos, qtd_conflitos);
 
 	qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), conflito_comp);
+
+	
+	for(int i = 0; i < 9; i++){
+		for(int k = 0; k < 9; k++){
+			if(qtd_conf[i][k] > 0) {free(conf[i][k]);}
+		}
+	}
+
 }
 
 // Encontra os possiveis valores para uma celula

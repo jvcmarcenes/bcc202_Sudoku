@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 	res = ler_sudoku(sudoku, argv[1]);
 	if (res == 1) {
 		printf("Falha ao tentar ler arquivo %s\n", argv[1]);
+		free_sudoku(&sudoku);
 		return 0;
 	}
 
