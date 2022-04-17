@@ -5,7 +5,6 @@
 typedef struct celula Celula;
 
 void print_celula(Celula *c);
-void print_celulas(Celula *c, int qtd);
 
 typedef struct conflito Conflito;
 
@@ -16,7 +15,7 @@ typedef struct sudoku Sudoku;
 
 Sudoku *novo_sudoku();
 
-void free_sudoku();
+void free_sudoku(Sudoku **sudoku);
 
 int ler_sudoku(Sudoku *sudoku, char *arq);
 

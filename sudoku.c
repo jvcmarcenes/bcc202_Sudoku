@@ -14,13 +14,6 @@ void print_celula(Celula *c) {
 	printf("(%d,%d)", c->lin + 1, c->col + 1);
 }
 
-void print_celulas(Celula *c, int qtd) {
-	for (int i = 0; i < qtd; i++) {
-		print_celula(c + i);
-		printf("\n");
-	}
-}
-
 int celula_igual(Celula *c1, Celula *c2) {
 	return c1->lin == c2->lin && c1->col == c2->col;
 }
