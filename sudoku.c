@@ -1,4 +1,8 @@
-
+/*
+ * Artur Bermond Torres (21.1.4003)
+ * João Vitor Costa Marcenes Vieira (21.1.4016)
+ * Pedro Augusto Sousa Gonçalves (21.1.4015)
+*/
 #include<stdio.h>
 #include<stdlib.h>
 #include "sudoku.h"
@@ -267,7 +271,7 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), conflito_comp);
 }
 
-// encontra os possiveis valores para uma celula
+// Encontra os possiveis valores para uma celula
 void mostra_sugestao_celula(Celula *c, Sudoku *sudoku) {
 	const int lin_c = c->lin / 3 * 3;
 	const int col_c = c->col / 3 * 3;
