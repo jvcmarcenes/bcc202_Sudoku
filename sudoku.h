@@ -1,8 +1,10 @@
+
 /*
  * Artur Bermond Torres (21.1.4003)
  * João Vitor Costa Marcenes Vieira (21.1.4016)
  * Pedro Augusto Sousa Gonçalves (21.1.4015)
-*/
+ */
+
 #ifndef SUDOKU
 #define SUDOKU
 

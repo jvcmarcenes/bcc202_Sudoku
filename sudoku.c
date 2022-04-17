@@ -1,19 +1,21 @@
+
 /*
  * Artur Bermond Torres (21.1.4003)
  * João Vitor Costa Marcenes Vieira (21.1.4016)
  * Pedro Augusto Sousa Gonçalves (21.1.4015)
-*/
+ */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include "sudoku.h"
 
-// Struct para definir uma posição no tabuleiro
+// struct para definir uma posição no tabuleiro
 struct celula {
 	int col;
 	int lin;
 };
 
-// Imprime uma celula no terminal, no formato (linha, coluna)
+// imprime uma celula no terminal, no formato (linha, coluna)
 void print_celula(Celula *c) {
 	printf("(%d,%d)", c->lin + 1, c->col + 1);
 }
@@ -22,7 +24,7 @@ int celula_igual(Celula *c1, Celula *c2) {
 	return c1->lin == c2->lin && c1->col == c2->col;
 }
 
-// Struct para definir conflitos entre duas celulas
+// struct para definir conflitos entre duas celulas
 struct conflito {
 	int tipo; // 0: linha; 1: coluna; 2: região
 	int n; // numero da linha/coluna/região, de 0 a 8
@@ -30,7 +32,7 @@ struct conflito {
 	Celula c2;
 };
 
-// Imprime um conflito no terminal
+// imprime um conflito no terminal
 void print_conflito(Conflito *c) {
 	switch (c->tipo) {
 		case 0: printf("Linha "); break;
@@ -66,23 +68,23 @@ int conflito_comp(const void *a, const void *b) {
 	return c1->tipo == c2->tipo ? c1->n - c2->n : c1->tipo - c2->tipo;
 }
 
-// Struct para definir um tabuleiro de sudoku
+// struct para definir um tabuleiro de sudoku
 struct sudoku {
 	int tabuleiro[9][9];
 };
 
-// Aloca um novo tabuleiro de sudoku
+// aloca um novo tabuleiro de sudoku
 Sudoku *novo_sudoku() {
 	return malloc(sizeof(Sudoku));
 }
 
-// Libera espaço alocado para um tabuleiro de sudoku
+// libera espaço alocado para um tabuleiro de sudoku
 void free_sudoku(Sudoku **sudoku) {
 	free(*sudoku);
 	*sudoku = NULL;
 }
 
-// Lê os numeros do tabuleiro de sudoku de um arquivo
+// lê os numeros do tabuleiro de sudoku de um arquivo
 // retorna 1 caso haja falha na leitura do arquivo
 // retorna 0 se não ouve falhas
 int ler_sudoku(Sudoku *sudoku, char *arq_nome) {
@@ -102,7 +104,7 @@ int ler_sudoku(Sudoku *sudoku, char *arq_nome) {
 	return 0;
 }
 
-// Encontra todas as celulas vazias do tabuleiro e as retorna por referencia pelo vetor "vazias"
+// encontra todas as celulas vazias do tabuleiro e as retorna por referencia pelo vetor "vazias"
 // o vetor é alocado dentro da função, e portanto deve ser desalocado por quem chamou a função
 // "qtd_vazias" é uma referencia a um int usado para denominar o tamanho do vetor
 void celulas_vazias(Sudoku *sudoku, Celula **vazias, int *qtd_vazias) {
@@ -167,7 +169,6 @@ void conflitos_coluna(Sudoku *sudoku, int col, Celula *c, Conflito **conflitos, 
 
 // encontra todos os conflitos em uma região com uma celula
 void conflitos_regiao(Sudoku *sudoku, int lin_c, int col_c, Celula *c, Conflito **conflitos, int *qtd_conflitos) {
-
 	*qtd_conflitos = 0;
 	for (int lin = lin_c; lin < lin_c + 3; lin++) {
 		for (int col = col_c; col < col_c + 3; col++) {
@@ -203,9 +204,9 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 	int qtd_conf_reg;
 	conflitos_regiao(sudoku, c->lin / 3 * 3, c->col / 3 * 3, c, &conflitos_reg, &qtd_conf_reg);
 
-	(*qtd_conflitos) = qtd_conf_lin + qtd_conf_col + qtd_conf_reg;
+	*qtd_conflitos = qtd_conf_lin + qtd_conf_col + qtd_conf_reg;
 
-	(*conflitos) = malloc(*qtd_conflitos * sizeof(Conflito));
+	*conflitos = malloc(*qtd_conflitos * sizeof(Conflito));
 
 	int i = 0;
 	for (int j = 0; j < qtd_conf_lin; j++) (*conflitos)[i++] = conflitos_lin[j];
@@ -275,15 +276,15 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 	qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), conflito_comp);
 
 	
-	for(int i = 0; i < 9; i++){
-		for(int k = 0; k < 9; k++){
-			if(qtd_conf[i][k] > 0) {free(conf[i][k]);}
+	for (int lin = 0; lin < 9; lin++) {
+		for (int col = 0; col < 9; col++) {
+			if (qtd_conf[col][lin] > 0) free(conf[col][lin]);
 		}
 	}
 
 }
 
-// Encontra os possiveis valores para uma celula
+// encontra os possiveis valores para uma celula
 void mostra_sugestao_celula(Celula *c, Sudoku *sudoku) {
 	const int lin_c = c->lin / 3 * 3;
 	const int col_c = c->col / 3 * 3;
@@ -312,7 +313,7 @@ void mostra_sugestao_celula(Celula *c, Sudoku *sudoku) {
 void mostra_sugestoes(Celula *c, int qtd, Sudoku *sudoku) {
 	if (!qtd) return;
 
-	printf("Voce esta no caminho certo. Sugestoes:\n");
+	printf("Voce esta no caminho certo.  Sugestoes:\n");
 	for (int i = 0; i < qtd; i++) {
 		printf("(%d,%d):  ", c[i].lin + 1, c[i].col + 1);
 		mostra_sugestao_celula(c + i, sudoku); // imprime as sugestões para a celula vazia
