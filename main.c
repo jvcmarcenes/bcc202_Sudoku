@@ -30,9 +30,10 @@ int main(int argc, char *argv[]) {
 	Conflito *conf;
 	int qtd_conflitos;
 	conflitos(sudoku, &conf, &qtd_conflitos);
-	
+
 	if (qtd_conflitos > 0) {
 		mostra_conflitos(conf, qtd_conflitos);
+		free(conf);
 	} else {
 		// verifica se há células vazias (se o tabuleiro está incompleto)
 		Celula *vazias;
@@ -41,15 +42,13 @@ int main(int argc, char *argv[]) {
 
 		if (qtd_vazias > 0) {
 			mostra_sugestoes(vazias, qtd_vazias, sudoku);
+			free(vazias);
 		} else {
 			// caso os dois casos não forem verdade, o jogo está completo e correto.
 			printf("Jogo completo.  Voce ganhou!\n");
 		}
-
-		free(vazias);
 	}
 
-	free(conf);
 	free_sudoku(&sudoku);
 
 	return 0;

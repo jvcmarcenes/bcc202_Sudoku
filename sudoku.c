@@ -116,6 +116,8 @@ void celulas_vazias(Sudoku *sudoku, Celula **vazias, int *qtd_vazias) {
 		}
 	}
 
+	if (*qtd_vazias == 0) return;
+
 	*vazias = malloc(*qtd_vazias * sizeof(Celula));
 
 	// populamos o vetor com as celulas vazias
@@ -221,6 +223,7 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 // remove conflitos duplicados do vetor de conflitos
 void remove_duplicados(Conflito **conflitos, int *qtd_conflitos) {
 	Conflito *conf = malloc(*qtd_conflitos * sizeof(Conflito));
+	
 	int i = 0;
 	for (int j = 0; j < *qtd_conflitos; j++) {
 		int repetido = 0;
@@ -260,6 +263,8 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 		}
 	}
 
+	if (*qtd_conflitos == 0) return;
+
 	*conflitos = malloc(*qtd_conflitos * sizeof(Conflito));
 
 	int i = 0;
@@ -275,7 +280,6 @@ void conflitos(Sudoku *sudoku, Conflito **conflitos, int *qtd_conflitos) {
 
 	qsort(*conflitos, *qtd_conflitos, sizeof(Conflito), conflito_comp);
 
-	
 	for (int lin = 0; lin < 9; lin++) {
 		for (int col = 0; col < 9; col++) {
 			if (qtd_conf[col][lin] > 0) free(conf[col][lin]);
