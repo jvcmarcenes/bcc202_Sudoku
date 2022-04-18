@@ -208,12 +208,14 @@ void conflitos_celula(Sudoku *sudoku, Celula *c, Conflito **conflitos, int *qtd_
 
 	*qtd_conflitos = qtd_conf_lin + qtd_conf_col + qtd_conf_reg;
 
-	*conflitos = malloc(*qtd_conflitos * sizeof(Conflito));
+	if (*qtd_conflitos > 0) {
+		*conflitos = malloc(*qtd_conflitos * sizeof(Conflito));
 
-	int i = 0;
-	for (int j = 0; j < qtd_conf_lin; j++) (*conflitos)[i++] = conflitos_lin[j];
-	for (int j = 0; j < qtd_conf_col; j++) (*conflitos)[i++] = conflitos_col[j];
-	for (int j = 0; j < qtd_conf_reg; j++) (*conflitos)[i++] = conflitos_reg[j];
+		int i = 0;
+		for (int j = 0; j < qtd_conf_lin; j++) (*conflitos)[i++] = conflitos_lin[j];
+		for (int j = 0; j < qtd_conf_col; j++) (*conflitos)[i++] = conflitos_col[j];
+		for (int j = 0; j < qtd_conf_reg; j++) (*conflitos)[i++] = conflitos_reg[j];
+	}
 
 	free(conflitos_lin);
 	free(conflitos_col);
